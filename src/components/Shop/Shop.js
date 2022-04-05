@@ -1,16 +1,21 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import useProducts from '../../hooks/useProducts';
 import AllProduct from '../AllProduct/AllProduct';
 
 
 const Shop = () => {
-    const [products, setProducts] = useProducts()
-    const [search,setSearch]=useState([])
-
+    const [search,setSearch]=useState('')
+    const [result,setResult]=useProducts([])
+        useEffect(()=>{
+            fetch('products.json')
+            .then(res=>res.json())
+            .then(data=>{
+                const match=data.filter(product=>product.name.includes(search))
+                setResult(match)
+            })
+        },[search])
     const handalSearch=event=>{
-        const searchText= event.target.value;
-        const match=products.filter(product=>product.name.includes(searchText))
-        setSearch(match)
+        setSearch(event.target.value)
     }
     return (
         <div>
@@ -21,7 +26,7 @@ const Shop = () => {
             <div className='grid sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 justify-between justify-items-center m-6 gap-2'>
                 
                 {
-                    search.map(product=><AllProduct
+                    result.map(product=><AllProduct
                         key={product.id}
                         product={product}
                     ></AllProduct>)
